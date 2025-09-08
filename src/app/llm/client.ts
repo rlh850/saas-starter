@@ -1,55 +1,28 @@
 import OpenAI from 'openai';
-import { config } from 'dotenv';
-import path from 'path';
+import dotenv from 'dotenv';
 import { systemPrompt } from './prompts/systemInstructions';
-import { GenerateFunctionOptions, GenerateFunctionResult, toolCall } from '../types/chat.types';
+import {
+  GenerateFunctionOptions,
+  GenerateFunctionResult,
+  toolCall,
+  OpenAIResponse,
+  GenerateTextOptions,
+  GenerateTextResult,
+  FunctionCallItem,
+  GenerateImageResult,
+  GenerateImageOptions,
+} from '../types/chat.types';
 import { tools } from './tools/tool.index';
 
-config.dotenv();
-
-// Define proper types for OpenAI response structure
-interface OpenAIResponse {
-  id: string;
-  output?: unknown;
-  output_text?: string;
-}
-
-interface FunctionCallItem {
-  type: 'function_call';
-  name: string;
-  call_id?: string;
-  arguments: string | object;
-}
-
-// Debug environment variable loading
-// console.log('Environment check:', process.env.OPENAI_API_KEY);
-// console.log('OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
-// console.log('OPENAI_API_KEY length:', process.env.OPENAI_API_KEY?.length);
-// console.log(
-//    'OPENAI_API_KEY starts with sk-:',
-//    process.env.OPENAI_API_KEY?.startsWith('sk-')
-// );
+dotenv.config();
 
 const openAIClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-type GenerateTextOptions = {
-  model?: string;
-  prompt: string;
-  instructions?: string;
-  maxTokens?: number;
-  previousResponseId?: string;
-};
-
-export type GenerateTextResult = {
-  id: string;
-  text: string;
-};
-
 export const llmClient = {
   async generateText({
-    model = process.env.MODEL,
+    model = process.env.TEXT_MODEL,
     prompt,
     instructions = systemPrompt,
     maxTokens = 12000,
@@ -70,7 +43,7 @@ export const llmClient = {
     };
   },
   async functionCall({
-    model = process.env.MODEL,
+    model = process.env.TEXT_MODEL,
     prompt,
     previousResponseId,
   }: GenerateFunctionOptions): Promise<GenerateFunctionResult> {
@@ -122,6 +95,26 @@ export const llmClient = {
       id: response.id,
       text: openAIResponse?.output_text,
       toolCalls,
+    };
+  },
+  async generateImage({
+    model = process.env.IMAGE_MODEL,
+    prompt,
+    previousImageId,
+  }: GenerateImageOptions): Promise<GenerateImageResult> {
+    const response = await openAIClient.images.generate({
+      model,
+      prompt,
+    });
+
+    const b64_json = response.data?.[0]?.b64_json;
+
+    if (!b64_json) {
+      throw new Error('No image data received from provider');
+    }
+
+    return {
+      b64_image: b64_json,
     };
   },
 };
