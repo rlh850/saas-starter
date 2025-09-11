@@ -1,14 +1,12 @@
 import React from 'react';
 import ChatWindow from './components/chat/ChatWindow';
 import { chatTheme } from './components/chat/theme';
-import Lookup from './repository/Constants';
+import Lookup from './data/Lookup';
 
 const page = () => {
   return (
-    <div
-      className={`min-h-screen ${chatTheme.background.primary} flex items-center justify-center p-4`}
-    >
-      <ChatWindow />
+    <div>
+      {Lookup.HERO_HEADING}
     </div>
   );
 };

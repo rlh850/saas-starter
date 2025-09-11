@@ -1,6 +1,6 @@
 export default {
   // Hero Section
-  HERO_HEADING: '',
+  HERO_HEADING: 'Hello World!',
   HERO_SUBHEADING: '',
   HERO_DESC: '',
   HERO_CTA_PRIMARY: '',
