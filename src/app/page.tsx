@@ -1,6 +1,7 @@
 import React from 'react';
 import ChatWindow from './components/chat/ChatWindow';
 import { chatTheme } from './components/chat/theme';
+import Lookup from './repository/Constants';
 
 const page = () => {
   return (
